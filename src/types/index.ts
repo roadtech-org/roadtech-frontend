@@ -25,6 +25,10 @@ export interface MechanicProfile {
 
 export interface MechanicWithProfile extends User {
   profile: MechanicProfile;
+  currentLatitude?: number | null;
+  currentLongitude?: number | null;
+  rating?: number;
+  totalJobs?: number;
 }
 
 // Service Request types
