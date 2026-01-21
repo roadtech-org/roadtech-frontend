@@ -1,10 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiError, AuthResponse } from '../types';
-
-const API_BASE_URL = '/api';
+import { BASE_API_URL } from '../config/api';
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: BASE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -102,7 +101,7 @@ apiClient.interceptors.response.use(
 
     try {
       const response = await axios.post<AuthResponse>(
-        `${API_BASE_URL}/auth/refresh`,
+        `${BASE_API_URL}/auth/refresh`,
         { refreshToken }
       );
 
