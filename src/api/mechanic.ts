@@ -19,6 +19,12 @@ export const mechanicApi = {
     return response.data;
   },
 
+   // Get active requests (assigned + in-progress)
+  getActiveRequests: async (): Promise<ServiceRequest[]> => {
+    const response = await apiClient.get<ServiceRequest[]>('/mechanic/requests/active');
+    return response.data;
+  },
+  
   updateLocation: async (location: Location): Promise<void> => {
     await apiClient.put('/mechanic/location', location);
   },
