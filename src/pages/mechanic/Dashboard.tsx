@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mechanicApi } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../../components/common';
 import { RequestCard } from '../../components/mechanic/RequestCard';
-import { Power, MapPin, Clock, CheckCircle, AlertCircle, Briefcase } from 'lucide-react';
+import { Power, MapPin, Clock, CheckCircle, AlertCircle, Briefcase, Navigation, Loader2 } from 'lucide-react';
 import type { ServiceRequest } from '../../types';
 
 export function MechanicDashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isLiveTracking, setIsLiveTracking] = useState(false);
+  const [liveLocation, setLiveLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const watchIdRef = useRef<number | null>(null);
 
   // Get mechanic profile
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
@@ -89,6 +92,71 @@ export function MechanicDashboard() {
       queryClient.invalidateQueries({ queryKey: ['activeRequests'] });
     },
   });
+
+  // Live location tracking mutation
+  const liveLocationMutation = useMutation({
+    mutationFn: mechanicApi.updateLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mechanicProfile'] });
+    },
+  });
+
+  // Start live tracking
+  const startLiveTracking = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsLiveTracking(true);
+    setLocationError(null);
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const newLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        setLiveLocation(newLocation);
+        // Update backend with new location
+        liveLocationMutation.mutate(newLocation);
+      },
+      (error) => {
+        setLocationError(`Live tracking error: ${error.message}`);
+        setIsLiveTracking(false);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000,
+      }
+    );
+  }, [liveLocationMutation]);
+
+  // Stop live tracking
+  const stopLiveTracking = useCallback(() => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    setIsLiveTracking(false);
+  }, []);
+
+  // Cleanup on unmount or when going offline
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
+
+  // Stop tracking when mechanic goes offline
+  useEffect(() => {
+    if (!profile?.isAvailable && isLiveTracking) {
+      stopLiveTracking();
+    }
+  }, [profile?.isAvailable, isLiveTracking, stopLiveTracking]);
 
   if (isLoadingProfile) {
     return (
@@ -207,6 +275,71 @@ export function MechanicDashboard() {
                 <span className="ml-2 text-sm text-gray-400">
                   (Updated: {new Date(profile.locationUpdatedAt).toLocaleTimeString()})
                 </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Live Location Tracking */}
+      {profile?.isAvailable && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-lg">
+              <Navigation className="h-5 w-5 mr-2 text-green-600" />
+              Live Location Tracking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  {isLiveTracking ? (
+                    <>
+                      <span className="relative flex h-3 w-3 mr-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                      </span>
+                      <span className="text-green-600 font-medium">Tracking Active</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="h-3 w-3 rounded-full bg-gray-300 mr-3"></span>
+                      <span className="text-gray-500">Tracking Inactive</span>
+                    </>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant={isLiveTracking ? 'outline' : 'primary'}
+                  onClick={isLiveTracking ? stopLiveTracking : startLiveTracking}
+                  className={isLiveTracking ? 'border-red-300 text-red-600 hover:bg-red-50' : 'bg-green-600 hover:bg-green-700'}
+                >
+                  {isLiveTracking ? 'Stop Tracking' : 'Start Live Tracking'}
+                </Button>
+              </div>
+
+              {isLiveTracking && liveLocation && (
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="flex items-center text-green-800">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">
+                      Live: {liveLocation.latitude.toFixed(6)}, {liveLocation.longitude.toFixed(6)}
+                    </span>
+                    {liveLocationMutation.isPending && (
+                      <Loader2 className="h-4 w-4 ml-2 animate-spin text-green-600" />
+                    )}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1 ml-6">
+                    Location updates automatically as you move
+                  </p>
+                </div>
+              )}
+
+              {!isLiveTracking && (
+                <p className="text-sm text-gray-500">
+                  Enable live tracking to share your real-time location with customers waiting for service.
+                </p>
               )}
             </div>
           </CardContent>
