@@ -1,14 +1,45 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico'],
+      manifest: {
+        name: 'RoadTech',
+        short_name: 'RoadTech',
+        description: 'Roadside Assistance Application',
+        theme_color: '#0f172a',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        scope: '/',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-192x192.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      }
+    })
+  ],
+
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8085', // Direct URL for local dev
+        target: 'http://localhost:8085',
         changeOrigin: true,
       },
       '/ws': {
@@ -17,6 +48,7 @@ export default defineConfig({
       },
     },
   },
+
   resolve: {
     alias: {
       '@': '/src',
