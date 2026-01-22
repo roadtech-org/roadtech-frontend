@@ -5,7 +5,7 @@ import type { ApiError, AuthResponse } from '../types';
 const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:8080/api';
 
 export const apiClient = axios.create({
-  baseURL: BASE_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -103,7 +103,7 @@ apiClient.interceptors.response.use(
 
     try {
       const response = await axios.post<AuthResponse>(
-        `${BASE_API_URL}/auth/refresh`,
+        `${API_BASE_URL}/auth/refresh`,
         { refreshToken }
       );
 
