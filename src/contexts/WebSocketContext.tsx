@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { Client, IMessage } from '@stomp/stompjs';
+import { Client, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { getAccessToken } from '../api';
 import { useAuth } from './AuthContext';
@@ -37,7 +37,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         Authorization: `Bearer ${token}`,
       },
       debug: (str) => {
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.NODE_ENV === 'development') {
           console.log('STOMP:', str);
         }
       },

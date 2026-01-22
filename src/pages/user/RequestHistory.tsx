@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { serviceRequestApi } from '../../api';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '../../components/common';
+import { Card, CardContent, Badge, Button } from '../../components/common';
 import { Car, MapPin, Clock, User, ChevronRight } from 'lucide-react';
 import type { ServiceRequest, RequestStatus } from '../../types';
 
