@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiError, AuthResponse } from '../types';
 
-const API_BASE_URL = '/api';
+// ✅ FIXED: Use environment variable for Railway backend
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:8080/api';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
