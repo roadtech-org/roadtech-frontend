@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { Layout } from './components/layout';
 import { ProtectedRoute } from './components/common';
@@ -28,6 +29,56 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          {/* RoadTech themed toast notifications */}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#1e293b',
+                color: '#f1f5f9',
+                padding: '16px 20px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+              },
+              success: {
+                duration: 3000,
+                style: {
+                  background: '#065f46',
+                  border: '1px solid #10b981',
+                },
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                duration: 4500,
+                style: {
+                  background: '#7f1d1d',
+                  border: '1px solid #ef4444',
+                },
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+              loading: {
+                duration: Infinity,
+                style: {
+                  background: '#1e40af',
+                  border: '1px solid #3b82f6',
+                },
+                iconTheme: {
+                  primary: '#3b82f6',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+          
           <Routes>
             <Route path="/" element={<Layout />}>
               {/* Public routes */}

@@ -1,5 +1,5 @@
 // User types
-export type UserRole = 'USER' | 'MECHANIC' | 'ADMIN';
+export type UserRole = 'USER' | 'MECHANIC' | 'PARTS_PROVIDER' | 'ADMIN';
 
 export interface User {
   id: number;
@@ -8,6 +8,7 @@ export interface User {
   phone: string;
   role: UserRole;
   isActive: boolean;
+  isVerified?: boolean;
   createdAt: string;
 }
 
@@ -16,6 +17,7 @@ export interface MechanicProfile {
   userId: number;
   specializations: string[];
   isAvailable: boolean;
+  isVerified: boolean;
   currentLatitude: number | null;
   currentLongitude: number | null;
   rating: number;
@@ -30,6 +32,46 @@ export interface MechanicWithProfile extends User {
   rating?: number;
   totalJobs?: number;
 }
+
+// Parts Provider types
+export interface PartsProvider {
+  id: number;
+  userId: number;
+  shopName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  isVerified: boolean;
+  isOpen: boolean;
+  rating: number;
+  totalOrders: number;
+  user?: User;
+}
+
+export interface Part {
+  id: number;
+  providerId: number;
+  name: string;
+  category: PartCategory;
+  brand: string;
+  price: number;
+  stock: number;
+  description?: string;
+  imageUrl?: string;
+  provider?: PartsProvider;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PartCategory = 
+  | 'TIRES'
+  | 'BATTERIES'
+  | 'ENGINE_PARTS'
+  | 'BRAKE_PARTS'
+  | 'FILTERS'
+  | 'FLUIDS'
+  | 'ELECTRICAL'
+  | 'OTHER';
 
 // Service Request types
 export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
@@ -75,6 +117,10 @@ export interface RegisterRequest {
   phone: string;
   role: UserRole;
   specializations?: string[];
+  shopName?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface AuthResponse {
@@ -97,6 +143,28 @@ export interface LocationUpdate {
   latitude: number;
   longitude: number;
   timestamp: string;
+}
+
+// Admin types
+export interface VerificationRequest {
+  id: number;
+  userId: number;
+  type: 'MECHANIC' | 'PARTS_PROVIDER';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  documents?: string[];
+  notes?: string;
+  createdAt: string;
+  user?: User;
+}
+
+export interface SystemLog {
+  id: number;
+  level: 'INFO' | 'WARN' | 'ERROR';
+  action: string;
+  userId?: number;
+  details: string;
+  timestamp: string;
+  user?: User;
 }
 
 // API Response types
@@ -147,4 +215,18 @@ export interface CreateServiceRequestForm {
 export interface UpdateMechanicProfileForm {
   specializations: string[];
   isAvailable: boolean;
+}
+
+export interface CreatePartForm {
+  name: string;
+  category: PartCategory;
+  brand: string;
+  price: number;
+  stock: number;
+  description?: string;
+  imageUrl?: string;
+}
+
+export interface UpdatePartForm extends Partial<CreatePartForm> {
+  id: number;
 }

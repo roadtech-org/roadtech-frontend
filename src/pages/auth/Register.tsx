@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Input, Select, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/common';
+import { LocationPicker } from '../../components/maps/LocationPicker';
 import { Car, AlertCircle } from 'lucide-react';
 import type { UserRole } from '../../types';
 
@@ -14,10 +15,28 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   fullName: z.string().min(2, 'Full name is required'),
   phone: z.string().regex(/^[+]?[0-9]{10,15}$/, 'Invalid phone number'),
-  role: z.enum(['USER', 'MECHANIC'] as const),
+  role: z.enum(['USER', 'MECHANIC', 'PARTS_PROVIDER'] as const),
+  shopName: z.string().optional(),
+  address: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
+}).refine((data) => {
+  if (data.role === 'PARTS_PROVIDER') {
+    return data.shopName && data.shopName.length >= 2;
+  }
+  return true;
+}, {
+  message: 'Shop name is required for parts providers',
+  path: ['shopName'],
+}).refine((data) => {
+  if (data.role === 'PARTS_PROVIDER') {
+    return data.address && data.address.length >= 5;
+  }
+  return true;
+}, {
+  message: 'Address is required for parts providers',
+  path: ['address'],
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -25,6 +44,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 const roleOptions = [
   { value: 'USER', label: 'I need roadside assistance (User)' },
   { value: 'MECHANIC', label: 'I provide roadside assistance (Mechanic)' },
+  { value: 'PARTS_PROVIDER', label: 'I sell auto parts (Parts Provider)' },
 ];
 
 const specializationOptions = [
@@ -43,6 +63,7 @@ export function Register() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const {
     register,
@@ -65,6 +86,12 @@ export function Register() {
   };
 
   const onSubmit = async (data: RegisterForm) => {
+    // Validate location for parts provider
+    if (data.role === 'PARTS_PROVIDER' && !location) {
+      setError('Please select your shop location on the map');
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
@@ -76,9 +103,16 @@ export function Register() {
         phone: data.phone,
         role: data.role as UserRole,
         specializations: data.role === 'MECHANIC' ? selectedSpecs : undefined,
+        shopName: data.role === 'PARTS_PROVIDER' ? data.shopName : undefined,
+        address: data.role === 'PARTS_PROVIDER' ? data.address : undefined,
+        latitude: data.role === 'PARTS_PROVIDER' && location ? location.lat : undefined,
+        longitude: data.role === 'PARTS_PROVIDER' && location ? location.lng : undefined,
       });
 
-      const redirectPath = data.role === 'MECHANIC' ? '/mechanic' : '/dashboard';
+      const redirectPath = 
+        data.role === 'MECHANIC' ? '/mechanic' : 
+        data.role === 'PARTS_PROVIDER' ? '/parts-provider' :
+        '/dashboard';
       navigate(redirectPath, { replace: true });
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed. Please try again.';
@@ -90,7 +124,7 @@ export function Register() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center py-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Car className="h-12 w-12 text-blue-600" />
@@ -108,50 +142,77 @@ export function Register() {
               </div>
             )}
 
-            <Input
-              label="Full Name"
-              placeholder="John Doe"
-              error={errors.fullName?.message}
-              {...register('fullName')}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Full Name"
+                placeholder="John Doe"
+                error={errors.fullName?.message}
+                {...register('fullName')}
+              />
 
-            <Input
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              error={errors.email?.message}
-              {...register('email')}
-            />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+                error={errors.email?.message}
+                {...register('email')}
+              />
 
-            <Input
-              label="Phone Number"
-              placeholder="+1234567890"
-              error={errors.phone?.message}
-              {...register('phone')}
-            />
+              <Input
+                label="Phone Number"
+                placeholder="+1234567890"
+                error={errors.phone?.message}
+                {...register('phone')}
+              />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="At least 8 characters"
-              error={errors.password?.message}
-              {...register('password')}
-            />
+              <Select
+                label="I want to..."
+                options={roleOptions}
+                error={errors.role?.message}
+                {...register('role')}
+              />
+            </div>
 
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="Confirm your password"
-              error={errors.confirmPassword?.message}
-              {...register('confirmPassword')}
-            />
+            {/* Parts Provider specific fields */}
+            {selectedRole === 'PARTS_PROVIDER' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Shop Name"
+                    placeholder="AutoParts Central"
+                    error={errors.shopName?.message}
+                    {...register('shopName')}
+                  />
+                  <Input
+                    label="Shop Address"
+                    placeholder="123 Main St, City"
+                    error={errors.address?.message}
+                    {...register('address')}
+                  />
+                </div>
+                <LocationPicker
+                  onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
+                />
+              </>
+            )}
 
-            <Select
-              label="I want to..."
-              options={roleOptions}
-              error={errors.role?.message}
-              {...register('role')}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Password"
+                type="password"
+                placeholder="At least 8 characters"
+                error={errors.password?.message}
+                {...register('password')}
+              />
+
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm your password"
+                error={errors.confirmPassword?.message}
+                {...register('confirmPassword')}
+              />
+            </div>
 
             {selectedRole === 'MECHANIC' && (
               <div>

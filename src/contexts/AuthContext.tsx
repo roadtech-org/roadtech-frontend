@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import toast from 'react-hot-toast';
 import { authApi, setTokens, clearTokens, getAccessToken, getRefreshToken } from '../api';
 import type { User, LoginRequest, RegisterRequest } from '../types';
 
@@ -41,15 +42,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshUser]);
 
   const login = async (data: LoginRequest) => {
-    const response = await authApi.login(data);
-    setTokens(response.accessToken, response.refreshToken);
-    setUser(response.user);
+    try {
+      const response = await authApi.login(data);
+      setTokens(response.accessToken, response.refreshToken);
+      setUser(response.user);
+      
+      // Success toast with personalized message
+      toast.success(`Welcome back, ${response.user.fullName.split(' ')[0]}! 🎉`, {
+        duration: 3000,
+        icon: '👋',
+      });
+    } catch (error: any) {
+      // Extract error message from response
+      let message = 'Login failed. Please try again.';
+      
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response?.status === 401) {
+        message = 'Invalid email or password. Please check your credentials.';
+      } else if (error.response?.status === 403) {
+        message = 'Your account has been disabled. Please contact support.';
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      toast.error(message, {
+        duration: 4000,
+        icon: '⚠️',
+      });
+      
+      throw error;
+    }
   };
 
   const register = async (data: RegisterRequest) => {
-    const response = await authApi.register(data);
-    setTokens(response.accessToken, response.refreshToken);
-    setUser(response.user);
+    try {
+      const response = await authApi.register(data);
+      setTokens(response.accessToken, response.refreshToken);
+      setUser(response.user);
+      
+      // Success toast based on role
+      const roleMessage = data.role === 'MECHANIC' 
+        ? 'Mechanic account created! Welcome to RoadTech! 🔧'
+        : data.role === 'PARTS_PROVIDER'
+        ? 'Parts Provider account created! Start adding your inventory! 📦'
+        : 'Account created successfully! Welcome to RoadTech! 🚗';
+      
+      toast.success(roleMessage, {
+        duration: 4000,
+        icon: '✅',
+      });
+    } catch (error: any) {
+      // Extract error message
+      let message = 'Registration failed. Please try again.';
+      
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response?.status === 400) {
+        message = 'Email already registered or invalid data provided.';
+      } else if (error.response?.data?.errors) {
+        // Handle validation errors
+        const errors = error.response.data.errors;
+        message = Object.values(errors)[0] as string;
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      toast.error(message, {
+        duration: 4000,
+        icon: '❌',
+      });
+      
+      throw error;
+    }
   };
 
   const logout = async () => {
@@ -63,6 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     clearTokens();
     setUser(null);
+    
+    toast.success('Logged out successfully. See you soon! 👋', {
+      duration: 2000,
+    });
   };
 
   return (
