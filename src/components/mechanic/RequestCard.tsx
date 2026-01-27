@@ -24,6 +24,7 @@ export function RequestCard({ request, variant, onAccept, isAccepting }: Request
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <Car className="h-5 w-5 text-gray-600" />
+            {/* <img src="/logo.png" alt="RoadTech Logo" className="h-12 w-auto" /> */}
             <span className="font-semibold text-gray-900">
               {request.issueType.replace('_', ' ')}
             </span>

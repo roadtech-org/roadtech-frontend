@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import toast from 'react-hot-toast';
 import { authApi, setTokens, clearTokens, getAccessToken, getRefreshToken } from '../api';
 import type { User, LoginRequest, RegisterRequest } from '../types';
 
@@ -44,12 +45,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authApi.login(data);
     setTokens(response.accessToken, response.refreshToken);
     setUser(response.user);
+    
+    toast.success(`Welcome back, ${response.user.fullName.split(' ')[0]}! 🎉`, {
+      icon: '👋',
+      duration: 3000,
+    });
+    // Don't catch errors - let them propagate to Login component
   };
 
   const register = async (data: RegisterRequest) => {
     const response = await authApi.register(data);
     setTokens(response.accessToken, response.refreshToken);
     setUser(response.user);
+    
+    // Success toast based on role
+    const roleMessage = data.role === 'MECHANIC' 
+      ? 'Mechanic account created! Welcome to RoadTech! 🔧'
+      : data.role === 'PARTS_PROVIDER'
+      ? 'Parts Provider account created! Start adding your inventory! 📦'
+      : 'Account created successfully! Welcome to RoadTech! 🚗';
+    
+    toast.success(roleMessage, {
+      icon: '✅',
+      duration: 4000,
+    });
+    // Don't catch errors - let them propagate to Register component
   };
 
   const logout = async () => {
@@ -63,6 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     clearTokens();
     setUser(null);
+    
+    toast.success('Logged out successfully. See you soon! 👋', {
+      duration: 2000,
+    });
   };
 
   return (

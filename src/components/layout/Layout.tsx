@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
+import { Footer } from './Footer';
 
 export function Layout() {
   return (
@@ -8,6 +9,7 @@ export function Layout() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
+      <Footer/>
     </div>
   );
 }

@@ -3,9 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/common';
-import { Car, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -18,7 +18,6 @@ export function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
@@ -32,15 +31,31 @@ export function Login() {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    setError(null);
+    if (isLoading) return;
+    
     setIsLoading(true);
-
+    
     try {
       await login(data);
       navigate(from, { replace: true });
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Invalid email or password';
-      setError(errorMessage);
+    } catch (err: any) {
+      let message = 'Login failed. Please try again.';
+      
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err.response?.status === 401) {
+        message = 'Invalid email or password. Please check your credentials.';
+      } else if (err.response?.status === 403) {
+        message = 'Your account has been disabled. Please contact support.';
+      } else if (err.message && !err.message.includes('status code')) {
+        message = err.message;
+      }
+      
+      toast.error(message, {
+        duration: 3000,
+        icon: '⚠️',
+        position: 'top-center',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -51,26 +66,22 @@ export function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Car className="h-12 w-12 text-blue-600" />
+            {/* <Car className="h-12 w-12 text-blue-600" /> */}
+            <img src="/logo.png" alt="RoadTech Logo" className="h-25 w-auto" />
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your RoadTech account</CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <CardContent className="space-y-4">
-            {error && (
-              <div className="flex items-center space-x-2 p-3 bg-red-50 text-red-700 rounded-md">
-                <AlertCircle className="h-5 w-5" />
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
-
             <Input
               label="Email"
               type="email"
               placeholder="you@example.com"
               error={errors.email?.message}
+              disabled={isLoading}
+              autoComplete="email"
               {...register('email')}
             />
 
@@ -79,13 +90,20 @@ export function Login() {
               type="password"
               placeholder="Enter your password"
               error={errors.password?.message}
+              disabled={isLoading}
+              autoComplete="current-password"
               {...register('password')}
             />
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" isLoading={isLoading}>
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full" 
+              isLoading={isLoading}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
             <p className="text-sm text-gray-600 text-center">
               Don't have an account?{' '}
