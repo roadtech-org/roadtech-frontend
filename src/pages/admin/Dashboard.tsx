@@ -47,62 +47,65 @@ export function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'overview'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('verifications')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
-              activeTab === 'verifications'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Verifications
-            {pendingCount > 0 && (
-              <Badge variant="warning" className="ml-2">
-                {pendingCount}
-              </Badge>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'users'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Users
-          </button>
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'logs'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            System Logs
-          </button>
-        </nav>
-      </div>
+<div className="border-b border-gray-200">
+  <nav className="-mb-px flex gap-6 overflow-x-auto scrollbar-hide">
+    <button
+      onClick={() => setActiveTab('overview')}
+      className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+        activeTab === 'overview'
+          ? 'border-blue-500 text-blue-600'
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      }`}
+    >
+      Overview
+    </button>
+
+    <button
+      onClick={() => setActiveTab('verifications')}
+      className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
+        activeTab === 'verifications'
+          ? 'border-blue-500 text-blue-600'
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      }`}
+    >
+      Verifications
+      {pendingCount > 0 && (
+        <Badge variant="warning" className="shrink-0">
+          {pendingCount}
+        </Badge>
+      )}
+    </button>
+
+    <button
+      onClick={() => setActiveTab('users')}
+      className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+        activeTab === 'users'
+          ? 'border-blue-500 text-blue-600'
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      }`}
+    >
+      Users
+    </button>
+
+    <button
+      onClick={() => setActiveTab('logs')}
+      className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+        activeTab === 'logs'
+          ? 'border-blue-500 text-blue-600'
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      }`}
+    >
+      System Logs
+    </button>
+  </nav>
+</div>
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -111,6 +114,19 @@ export function AdminDashboard() {
                   <div className="ml-4">
                     <p className="text-sm text-gray-600">Total Users</p>
                     <p className="text-2xl font-bold">{stats?.totalUsers || 0}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-600">Customers</p>
+                    <p className="text-2xl font-bold">{stats?.totalCustomers || 0}</p>
                   </div>
                 </div>
               </CardContent>

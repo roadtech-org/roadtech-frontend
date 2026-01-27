@@ -62,52 +62,60 @@ function App() {
               containerStyle={{
                 top: 20,
               }}
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#1e293b',
-                  color: '#f1f5f9',
-                  padding: '16px 20px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-                  maxWidth: '500px',
-                },
-                success: {
-                  duration: 3000,
-                  style: {
-                    background: '#065f46',
-                    border: '1px solid #10b981',
-                  },
-                  iconTheme: {
-                    primary: '#10b981',
-                    secondary: '#fff',
-                  },
-                },
-                error: {
-                  duration: 6000,
-                  style: {
-                    background: '#7f1d1d',
-                    border: '1px solid #ef4444',
-                  },
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
-                  },
-                },
-                loading: {
-                  duration: Infinity,
-                  style: {
-                    background: '#1e40af',
-                    border: '1px solid #3b82f6',
-                  },
-                  iconTheme: {
-                    primary: '#3b82f6',
-                    secondary: '#fff',
-                  },
-                },
-              }}
+             toastOptions={{
+  duration: 4000,
+  style: {
+    background: '#ffffff',
+    color: '#0f172a', // slate-900
+    padding: '16px 20px',
+    borderRadius: '10px',
+    fontSize: '14px',
+    fontWeight: '500',
+    border: '1px solid #e5e7eb', // gray-200
+    boxShadow: '0 10px 20px -8px rgba(15, 23, 42, 0.15)',
+    maxWidth: '480px',
+  },
+
+  success: {
+    duration: 3000,
+    style: {
+      background: '#f0fdf4', // green-50
+      border: '1px solid #bbf7d0', // green-200
+      color: '#065f46', // green-800
+    },
+    iconTheme: {
+      primary: '#22c55e',
+      secondary: '#ffffff',
+    },
+  },
+
+  error: {
+    duration: 6000,
+    style: {
+      background: '#fef2f2', // red-50
+      border: '1px solid #fecaca', // red-200
+      color: '#7f1d1d', // red-900
+    },
+    iconTheme: {
+      primary: '#ef4444',
+      secondary: '#ffffff',
+    },
+  },
+
+  loading: {
+    duration: Infinity,
+    style: {
+      background: '#eff6ff', // blue-50
+      border: '1px solid #bfdbfe', // blue-200
+      color: '#1e40af', // blue-800
+    },
+    iconTheme: {
+      primary: '#2563eb',
+      secondary: '#ffffff',
+    },
+  },
+}}
+
             />
 
             <Routes>

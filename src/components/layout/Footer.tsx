@@ -9,11 +9,9 @@ export function Footer() {
           <p className="text-xs md:text-sm">
             © {currentYear} RoadTech. All rights reserved.
           </p>
-          <div className="flex items-center justify-center space-x-1 text-xs md:text-sm">
-            <span>Made with</span>
-            <span className="text-red-500">❤</span>
-            <span>for safer journeys</span>
-          </div>
+          <p className="text-sm text-gray-500 font-nunito">
+            Made with <span className="text-red-500 heart-soft">❤</span>  to keep you moving safely
+          </p>
         </div>
       </div>
     </footer>
