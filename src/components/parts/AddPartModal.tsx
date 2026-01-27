@@ -74,7 +74,6 @@ export function AddPartModal({ onClose, onSuccess }: AddPartModalProps) {
   const onSubmit = (data: PartForm) => {
     addMutation.mutate({
       ...data,
-      category: data.category as any,
       imageUrl: data.imageUrl || undefined,
       description: data.description || undefined,
     });
