@@ -178,7 +178,7 @@ export function Header() {
               <h3 className="text-sm font-semibold text-gray-900 mb-2">Contact Us</h3>
               <div className="space-y-2">
                 <a
-                  href="tel:+15551234567"
+                  href="tel:+91 9369234766"
                   className="flex items-center space-x-2 text-blue-600"
                 >
                   <Phone className="h-4 w-4" />
