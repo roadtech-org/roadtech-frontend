@@ -114,6 +114,7 @@ export function JobDetails() {
             <div className="flex items-center space-x-4">
               <div className={`p-3 rounded-full ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
                 <Car className="h-6 w-6" />
+                {/* <img src="/logo.png" alt="RoadTech Logo" className="h-10 w-auto" /> */}
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">

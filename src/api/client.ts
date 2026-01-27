@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiError, AuthResponse } from '../types';
 
-// ✅ FIXED: Use environment variable for Railway backend
 const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:8080/api';
 
 export const apiClient = axios.create({
@@ -68,19 +67,31 @@ apiClient.interceptors.response.use(
   async (error: AxiosError<ApiError>) => {
     const originalRequest = error.config;
 
-    // If no config or error is not 401, reject immediately
-    if (!originalRequest || error.response?.status !== 401) {
+    if (!originalRequest) {
       return Promise.reject(error);
     }
 
-    // Check if we've already tried to refresh
+    // ✅ CRITICAL FIX: Don't intercept auth endpoints
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/login') || 
+                           originalRequest.url?.includes('/auth/register') ||
+                           originalRequest.url?.includes('/auth/refresh');
+    
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    // Only handle 401 errors for protected endpoints
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
     const retryFlag = (originalRequest as { _retry?: boolean })._retry;
     if (retryFlag) {
+      clearTokens();
       return Promise.reject(error);
     }
 
     if (isRefreshing) {
-      // Wait for the refresh to complete
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       })
@@ -97,8 +108,8 @@ apiClient.interceptors.response.use(
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
       clearTokens();
-      window.location.href = '/login';
-      return Promise.reject(error);
+      isRefreshing = false;
+      return Promise.reject(new Error('No refresh token available'));
     }
 
     try {
@@ -109,7 +120,6 @@ apiClient.interceptors.response.use(
 
       const { accessToken, refreshToken: newRefreshToken } = response.data;
       setTokens(accessToken, newRefreshToken);
-
       processQueue(null, accessToken);
 
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -117,7 +127,6 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError as Error, null);
       clearTokens();
-      window.location.href = '/login';
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

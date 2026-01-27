@@ -24,11 +24,27 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // Redirect to appropriate dashboard based on role
-    const redirectPath = user.role === 'MECHANIC' ? '/mechanic' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
+ if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  let redirectPath = '/dashboard';
+
+  switch (user.role) {
+    case 'ADMIN':
+      redirectPath = '/admin';
+      break;
+    case 'MECHANIC':
+      redirectPath = '/mechanic';
+      break;
+    case 'PARTS_PROVIDER':
+      redirectPath = '/parts-provider';
+      break;
+    case 'USER':
+    default:
+      redirectPath = '/dashboard';
   }
+
+  return <Navigate to={redirectPath} replace />;
+}
+
 
   return <>{children}</>;
 }

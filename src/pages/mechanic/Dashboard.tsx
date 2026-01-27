@@ -5,7 +5,7 @@ import { mechanicApi } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../../components/common';
 import { RequestCard } from '../../components/mechanic/RequestCard';
-import { Power, MapPin, Clock, CheckCircle, AlertCircle, Briefcase, Navigation, Loader2 } from 'lucide-react';
+import { Power, MapPin, Clock, CheckCircle, AlertCircle, Briefcase, Navigation, Loader2, Package } from 'lucide-react';
 import type { ServiceRequest } from '../../types';
 
 export function MechanicDashboard() {
@@ -177,8 +177,14 @@ export function MechanicDashboard() {
           <p className="text-gray-600 mt-1">Mechanic Dashboard</p>
         </div>
 
-        {/* Availability Toggle */}
-        <div className="mt-4 sm:mt-0">
+        {/* Action Buttons */}
+        <div className="mt-4 sm:mt-0 flex gap-3">
+          <Link to="/mechanic/parts-search">
+            <Button variant="outline" className="flex items-center">
+              <Package className="h-5 w-5 mr-2" />
+              Search Parts
+            </Button>
+          </Link>
           <Button
             size="lg"
             variant={profile?.isAvailable ? 'primary' : 'outline'}
