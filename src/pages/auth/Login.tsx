@@ -32,15 +32,15 @@ export function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       await login(data);
       navigate(from, { replace: true });
     } catch (err: any) {
       let message = 'Login failed. Please try again.';
-      
+
       if (err.response?.data?.message) {
         message = err.response.data.message;
       } else if (err.response?.status === 401) {
@@ -50,7 +50,7 @@ export function Login() {
       } else if (err.message && !err.message.includes('status code')) {
         message = err.message;
       }
-      
+
       toast.error(message, {
         duration: 3000,
         icon: '⚠️',
@@ -67,11 +67,11 @@ export function Login() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             {/* <Car className="h-12 w-12 text-blue-600" /> */}
-           <img
-  src="/logo.png"
-  alt="RoadTech"
-  className="h-25 w-auto logo-enter"
-/>
+            <img
+              src="/logo.png"
+              alt="RoadTech"
+              className="h-30 w-auto logo-enter"
+            />
 
 
           </div>
@@ -103,9 +103,9 @@ export function Login() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               isLoading={isLoading}
               disabled={isLoading}
             >

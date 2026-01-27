@@ -113,14 +113,14 @@ export function Register() {
         longitude: data.role === 'PARTS_PROVIDER' && location ? location.lng : undefined,
       });
 
-      const redirectPath = 
-        data.role === 'MECHANIC' ? '/mechanic' : 
-        data.role === 'PARTS_PROVIDER' ? '/parts-provider' :
-        '/dashboard';
+      const redirectPath =
+        data.role === 'MECHANIC' ? '/mechanic' :
+          data.role === 'PARTS_PROVIDER' ? '/parts-provider' :
+            '/dashboard';
       navigate(redirectPath, { replace: true });
     } catch (err: any) {
       let message = 'Registration failed. Please try again.';
-      
+
       // Extract error message from response
       if (err.response?.data?.message) {
         message = err.response.data.message;
@@ -139,13 +139,13 @@ export function Register() {
       } else if (err.message && !err.message.includes('status code')) {
         message = err.message;
       }
-      
+
       toast.error(message, {
         duration: 3000,
         icon: '❌',
         position: 'top-center',
       });
-      
+
       console.error('Registration error:', err);
       console.log('Error response:', err.response);
       console.log('Error response data:', err.response?.data);
@@ -160,7 +160,11 @@ export function Register() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             {/* <Car className="h-12 w-12 text-blue-600" /> */}
-            <img src="/logo.png" alt="RoadTech Logo" className="h-28 w-auto" />
+            <img
+              src="/logo.png"
+              alt="RoadTech"
+              className="h-30 w-auto logo-enter"
+            />
           </div>
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>Join RoadTech today</CardDescription>
@@ -265,11 +269,10 @@ export function Register() {
                       type="button"
                       onClick={() => toggleSpecialization(spec.value)}
                       disabled={isLoading}
-                      className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                        selectedSpecs.includes(spec.value)
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors ${selectedSpecs.includes(spec.value)
                           ? 'bg-blue-600 text-white border-blue-600'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
-                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {spec.label}
                     </button>
@@ -280,9 +283,9 @@ export function Register() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               isLoading={isLoading}
               disabled={isLoading}
             >
