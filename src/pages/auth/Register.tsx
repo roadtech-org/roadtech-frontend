@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -63,20 +63,7 @@ export function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-  // If already authenticated, redirect to appropriate dashboard
-  if (isAuthenticated) {
-    switch (user?.role) {
-      case 'ADMIN':
-        return <Navigate to="/admin" replace />;
-      case 'MECHANIC':
-        return <Navigate to="/mechanic" replace />;
-      case 'PARTS_PROVIDER':
-        return <Navigate to="/parts-provider" replace />;
-      default:
-        return <Navigate to="/dashboard" replace />;
-    }
-  }
+  const hasNavigated = useRef(false);
 
   const {
     register,
@@ -91,6 +78,33 @@ export function Register() {
   });
 
   const selectedRole = watch('role');
+
+  // Handle redirect after authentication
+  useEffect(() => {
+    if (isAuthenticated && user && !hasNavigated.current) {
+      hasNavigated.current = true;
+      
+      let redirectPath = '/dashboard';
+      switch (user.role) {
+        case 'ADMIN':
+          redirectPath = '/admin';
+          break;
+        case 'MECHANIC':
+          redirectPath = '/mechanic';
+          break;
+        case 'PARTS_PROVIDER':
+          redirectPath = '/parts-provider';
+          break;
+      }
+
+      // Small delay to ensure state is fully updated before navigation
+      const timeoutId = setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const toggleSpecialization = (spec: string) => {
     setSelectedSpecs((prev) =>
@@ -127,11 +141,7 @@ export function Register() {
         longitude: data.role === 'PARTS_PROVIDER' && location ? location.lng : undefined,
       });
 
-      const redirectPath =
-        data.role === 'MECHANIC' ? '/mechanic' :
-          data.role === 'PARTS_PROVIDER' ? '/parts-provider' :
-            '/dashboard';
-      navigate(redirectPath, { replace: true });
+      // Navigation will be handled by useEffect above
     } catch (err: any) {
       let message = 'Registration failed. Please try again.';
 
@@ -168,12 +178,23 @@ export function Register() {
     }
   };
 
+  // Don't render form if already authenticated (prevents flash)
+  if (isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[80vh] items-center justify-center py-8">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            {/* <Car className="h-12 w-12 text-blue-600" /> */}
             <img
               src="/logo.png"
               alt="RoadTech"

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,22 +19,7 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
-
-  // If already authenticated, redirect to appropriate dashboard
-  if (isAuthenticated) {
-    switch (user?.role) {
-      case 'ADMIN':
-        return <Navigate to="/admin" replace />;
-      case 'MECHANIC':
-        return <Navigate to="/mechanic" replace />;
-      case 'PARTS_PROVIDER':
-        return <Navigate to="/parts-provider" replace />;
-      default:
-        return <Navigate to="/dashboard" replace />;
-    }
-  }
-
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+  const hasNavigated = useRef(false);
 
   const {
     register,
@@ -44,6 +29,38 @@ export function Login() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Handle redirect after authentication
+  useEffect(() => {
+    if (isAuthenticated && user && !hasNavigated.current) {
+      hasNavigated.current = true;
+      
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+      
+      // Determine redirect path based on role
+      let redirectPath = '/dashboard';
+      switch (user.role) {
+        case 'ADMIN':
+          redirectPath = '/admin';
+          break;
+        case 'MECHANIC':
+          redirectPath = '/mechanic';
+          break;
+        case 'PARTS_PROVIDER':
+          redirectPath = '/parts-provider';
+          break;
+        default:
+          redirectPath = from || '/dashboard';
+      }
+
+      // Small delay to ensure state is fully updated before navigation
+      const timeoutId = setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isAuthenticated, user, navigate, location.state]);
+
   const onSubmit = async (data: LoginForm) => {
     if (isLoading) return;
 
@@ -51,7 +68,7 @@ export function Login() {
 
     try {
       await login(data);
-      navigate(from, { replace: true });
+      // Navigation will be handled by useEffect above
     } catch (err: any) {
       let message = 'Login failed. Please try again.';
 
@@ -74,6 +91,18 @@ export function Login() {
       setIsLoading(false);
     }
   };
+
+  // Don't render form if already authenticated (prevents flash)
+  if (isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center">

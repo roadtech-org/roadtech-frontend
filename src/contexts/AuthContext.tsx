@@ -89,6 +89,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  // Show loading screen while initializing authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin"></div>
+            </div>
+          </div>
+          <p className="mt-4 text-gray-600 font-medium">Loading RoadTech...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider
       value={{
