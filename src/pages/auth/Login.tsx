@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,10 +15,24 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function Login() {
-  const { login } = useAuth();
+  const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+
+  // If already authenticated, redirect to appropriate dashboard
+  if (isAuthenticated) {
+    switch (user?.role) {
+      case 'ADMIN':
+        return <Navigate to="/admin" replace />;
+      case 'MECHANIC':
+        return <Navigate to="/mechanic" replace />;
+      case 'PARTS_PROVIDER':
+        return <Navigate to="/parts-provider" replace />;
+      default:
+        return <Navigate to="/dashboard" replace />;
+    }
+  }
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
@@ -66,14 +80,11 @@ export function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            {/* <Car className="h-12 w-12 text-blue-600" /> */}
             <img
               src="/logo.png"
               alt="RoadTech"
               className="h-30 w-auto logo-enter"
             />
-
-
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your RoadTech account</CardDescription>

@@ -62,59 +62,59 @@ function App() {
               containerStyle={{
                 top: 20,
               }}
-             toastOptions={{
-  duration: 4000,
-  style: {
-    background: '#ffffff',
-    color: '#0f172a', // slate-900
-    padding: '16px 20px',
-    borderRadius: '10px',
-    fontSize: '14px',
-    fontWeight: '500',
-    border: '1px solid #e5e7eb', // gray-200
-    boxShadow: '0 10px 20px -8px rgba(15, 23, 42, 0.15)',
-    maxWidth: '480px',
-  },
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#ffffff',
+                  color: '#0f172a', // slate-900
+                  padding: '16px 20px',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  border: '1px solid #e5e7eb', // gray-200
+                  boxShadow: '0 10px 20px -8px rgba(15, 23, 42, 0.15)',
+                  maxWidth: '480px',
+                },
 
-  success: {
-    duration: 3000,
-    style: {
-      background: '#f0fdf4', // green-50
-      border: '1px solid #bbf7d0', // green-200
-      color: '#065f46', // green-800
-    },
-    iconTheme: {
-      primary: '#22c55e',
-      secondary: '#ffffff',
-    },
-  },
+                success: {
+                  duration: 3000,
+                  style: {
+                    background: '#f0fdf4', // green-50
+                    border: '1px solid #bbf7d0', // green-200
+                    color: '#065f46', // green-800
+                  },
+                  iconTheme: {
+                    primary: '#22c55e',
+                    secondary: '#ffffff',
+                  },
+                },
 
-  error: {
-    duration: 6000,
-    style: {
-      background: '#fef2f2', // red-50
-      border: '1px solid #fecaca', // red-200
-      color: '#7f1d1d', // red-900
-    },
-    iconTheme: {
-      primary: '#ef4444',
-      secondary: '#ffffff',
-    },
-  },
+                error: {
+                  duration: 6000,
+                  style: {
+                    background: '#fef2f2', // red-50
+                    border: '1px solid #fecaca', // red-200
+                    color: '#7f1d1d', // red-900
+                  },
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#ffffff',
+                  },
+                },
 
-  loading: {
-    duration: Infinity,
-    style: {
-      background: '#eff6ff', // blue-50
-      border: '1px solid #bfdbfe', // blue-200
-      color: '#1e40af', // blue-800
-    },
-    iconTheme: {
-      primary: '#2563eb',
-      secondary: '#ffffff',
-    },
-  },
-}}
+                loading: {
+                  duration: Infinity,
+                  style: {
+                    background: '#eff6ff', // blue-50
+                    border: '1px solid #bfdbfe', // blue-200
+                    color: '#1e40af', // blue-800
+                  },
+                  iconTheme: {
+                    primary: '#2563eb',
+                    secondary: '#ffffff',
+                  },
+                },
+              }}
 
             />
 
@@ -203,7 +203,6 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-
                 <Route path="*" element={<RoleRedirect />} />
               </Route>
             </Routes>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -58,11 +58,25 @@ const specializationOptions = [
 ];
 
 export function Register() {
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // If already authenticated, redirect to appropriate dashboard
+  if (isAuthenticated) {
+    switch (user?.role) {
+      case 'ADMIN':
+        return <Navigate to="/admin" replace />;
+      case 'MECHANIC':
+        return <Navigate to="/mechanic" replace />;
+      case 'PARTS_PROVIDER':
+        return <Navigate to="/parts-provider" replace />;
+      default:
+        return <Navigate to="/dashboard" replace />;
+    }
+  }
 
   const {
     register,
