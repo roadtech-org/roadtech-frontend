@@ -69,18 +69,10 @@ export interface Part {
   provider?: PartsProvider;
   shopName?: string;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
-export type PartCategory =
-  | 'TIRES'
-  | 'BATTERIES'
-  | 'ENGINE_PARTS'
-  | 'BRAKE_PARTS'
-  | 'FILTERS'
-  | 'FLUIDS'
-  | 'ELECTRICAL'
-  | 'OTHER';
+export type PartCategory = 'FILTERS' | 'FLUIDS' | 'ELECTRICAL' | 'OTHER';
 
 // Service Request types
 export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
@@ -265,6 +257,28 @@ export interface SystemLog {
   user?: User;
 }
 
+// Admin types
+export interface VerificationRequest {
+  id: number;
+  userId: number;
+  type: 'MECHANIC' | 'PARTS_PROVIDER';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  documents?: string[];
+  notes?: string;
+  createdAt: string;
+  user?: User;
+}
+
+export interface SystemLog {
+  id: number;
+  level: 'INFO' | 'WARN' | 'ERROR';
+  action: string;
+  userId?: number;
+  details: string;
+  timestamp: string;
+  user?: User;
+}
+
 // API Response types
 export interface ApiError {
   status: number;
@@ -325,13 +339,7 @@ export interface CreatePartForm {
   imageUrl?: string;
 }
 
-export interface UpdatePartForm {
-  name?: string;
-  category?: PartCategory;
-  brand?: string;
-  price?: number;
-  stock?: number;
-  description?: string;
-  imageUrl?: string;
+export interface UpdatePartForm extends Partial<CreatePartForm> {
+  id: number;
   isAvailable?: boolean;
 }

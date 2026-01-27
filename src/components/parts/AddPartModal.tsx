@@ -7,7 +7,6 @@ import { partsProviderApi } from '../../api/partsProvider';
 import { Button, Input, Select } from '../common';
 import { X } from 'lucide-react';
 
-
 const partSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   category: z.enum([
