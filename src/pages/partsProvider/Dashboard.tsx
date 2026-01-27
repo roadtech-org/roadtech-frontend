@@ -159,7 +159,7 @@ export function PartsProviderDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Inventory Value</p>
-                <p className="text-2xl font-bold">${totalValue.toFixed(2)}</p>
+                <p className="text-2xl font-bold">₹{totalValue.toFixed(2)}</p>
               </div>
             </div>
           </CardContent>
@@ -172,71 +172,93 @@ export function PartsProviderDashboard() {
           <CardTitle>Parts Inventory</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoadingParts ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : parts && parts.length > 0 ? (
-            <div className="space-y-3">
-              {parts.map((part: Part) => (
-                <div key={part.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-4 flex-1">
-                    {part.imageUrl && (
-                      <img
-                        src={part.imageUrl}
-                        alt={part.name}
-                        className="h-16 w-16 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{part.name}</h3>
-                      <p className="text-sm text-gray-600">{part.brand} - {part.category}</p>
-                      {part.description && (
-                        <p className="text-sm text-gray-500 mt-1">{part.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-6">
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Stock</p>
-                      <p className={`font-bold ${part.stock < 10 ? 'text-red-600' : 'text-gray-900'}`}>
-                        {part.stock}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Price</p>
-                      <p className="font-bold text-gray-900">${part.price}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingPart(part)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeletePart(part.id, part.name)}
-                        className="text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+  {isLoadingParts ? (
+    <p className="text-gray-500">Loading...</p>
+  ) : parts && parts.length > 0 ? (
+    <div className="space-y-3">
+      {parts.map((part: Part) => (
+        <div
+          key={part.id}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 rounded-lg"
+        >
+          {/* Left section */}
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            {part.imageUrl && (
+              <img
+                src={part.imageUrl}
+                alt={part.name}
+                className="h-16 w-16 object-cover rounded shrink-0"
+              />
+            )}
+
+            <div className="min-w-0">
+              <h3 className="font-semibold text-gray-900">
+                {part.name}
+              </h3>
+              <p className="text-sm text-gray-600 wrap-break-word">
+                {part.brand} - {part.category}
+              </p>
+              {part.description && (
+                <p className="text-sm text-gray-500 mt-1 wrap-break-word">
+                  {part.description}
+                </p>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No parts added yet</p>
-              <Button className="mt-4" onClick={() => setShowAddModal(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Part
+          </div>
+
+          {/* Right section */}
+          <div className="flex items-center justify-between sm:justify-end gap-6">
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Stock</p>
+              <p
+                className={`font-bold ${
+                  part.stock < 10 ? 'text-red-600' : 'text-gray-900'
+                }`}
+              >
+                {part.stock}
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Price</p>
+              <p className="font-bold text-gray-900">
+                ₹{part.price}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditingPart(part)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleDeletePart(part.id, part.name)}
+                className="text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-          )}
-        </CardContent>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-12">
+      <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+      <p className="text-gray-500">No parts added yet</p>
+      <Button className="mt-4" onClick={() => setShowAddModal(true)}>
+        <Plus className="h-4 w-4 mr-2" />
+        Add Your First Part
+      </Button>
+    </div>
+  )}
+</CardContent>
+
       </Card>
 
       {/* Modals */}

@@ -67,7 +67,13 @@ export function Login() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             {/* <Car className="h-12 w-12 text-blue-600" /> */}
-            <img src="/logo.png" alt="RoadTech Logo" className="h-25 w-auto" />
+           <img
+  src="/logo.png"
+  alt="RoadTech"
+  className="h-25 w-auto logo-enter"
+/>
+
+
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your RoadTech account</CardDescription>

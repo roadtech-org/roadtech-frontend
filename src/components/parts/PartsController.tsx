@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { partsProviderApi } from '../../api/partsProvider';
 import { Card, CardHeader, CardTitle, CardContent } from '../common';
-import { Package, MapPin, DollarSign } from 'lucide-react';
+import { Package, MapPin, IndianRupee } from 'lucide-react';
 import type { Part } from '../../types';
 
 interface PartsControllerProps {
@@ -58,7 +58,7 @@ export function PartsController({ latitude, longitude, radiusKm = 10 }: PartsCon
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600 flex items-center">
-                        <DollarSign className="h-4 w-4" />
+                        <IndianRupee className="h-4 w-4" />
                         {part.price}
                       </p>
                       <p className="text-xs text-gray-500">Stock: {part.stock}</p>

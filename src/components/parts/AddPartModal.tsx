@@ -116,7 +116,7 @@ export function AddPartModal({ onClose, onSuccess }: AddPartModalProps) {
             />
 
             <Input
-              label="Price ($)"
+              label="Price (₹)"
               type="number"
               step="0.01"
               placeholder="0.00"
