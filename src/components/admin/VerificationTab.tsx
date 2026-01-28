@@ -3,15 +3,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../api/admin';
 import { Card, CardContent, Badge, Button } from '../common';
-import {Mail, Phone, CheckCircle, XCircle, Wrench, Package, MapPin } from 'lucide-react';
+import {
+  Mail,
+  Phone,
+  CheckCircle,
+  XCircle,
+  Wrench,
+  Package,
+  MapPin,
+} from 'lucide-react';
 
+/**
+ * Type to control which verification list is active
+ */
 type VerificationType = 'mechanics' | 'providers';
 
 export function VerificationTab() {
   const queryClient = useQueryClient();
+
+  /** Active tab (Mechanics / Providers) */
   const [activeType, setActiveType] = useState<VerificationType>('mechanics');
+
+  /** State to control rejection UI */
   const [rejectingId, setRejectingId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+
+  /* ----------------------- DATA FETCHING ----------------------- */
 
   // Fetch pending mechanics
   const { data: pendingMechanics, isLoading: isLoadingMechanics } = useQuery({
@@ -20,28 +37,28 @@ export function VerificationTab() {
     enabled: activeType === 'mechanics',
   });
 
-  // Fetch pending providers
+  // Fetch pending parts providers
   const { data: pendingProviders, isLoading: isLoadingProviders } = useQuery({
     queryKey: ['pendingProviders'],
     queryFn: adminApi.getPendingProviders,
     enabled: activeType === 'providers',
   });
 
-  // Verify mechanic mutation
- const verifyMechanicMutation = useMutation({
-  mutationFn: (id: number) =>
-    adminApi.verifyMechanic(id, 'Verified by admin'),
+  /* ----------------------- MUTATIONS ----------------------- */
+
+  // Approve mechanic
+  const verifyMechanicMutation = useMutation({
+    mutationFn: (id: number) =>
+      adminApi.verifyMechanic(id, 'Verified by admin'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingMechanics'] });
       queryClient.invalidateQueries({ queryKey: ['adminStats'] });
       toast.success('Mechanic verified successfully! ✅');
     },
-    onError: () => {
-      toast.error('Failed to verify mechanic');
-    },
+    onError: () => toast.error('Failed to verify mechanic'),
   });
 
-  // Reject mechanic mutation
+  // Reject mechanic
   const rejectMechanicMutation = useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) =>
       adminApi.rejectMechanic(id, reason),
@@ -52,25 +69,22 @@ export function VerificationTab() {
       setRejectingId(null);
       setRejectReason('');
     },
-    onError: () => {
-      toast.error('Failed to reject verification');
-    },
+    onError: () => toast.error('Failed to reject verification'),
   });
 
-  // Verify provider mutation
+  // Approve provider
   const verifyProviderMutation = useMutation({
-    mutationFn: (id: number) => adminApi.verifyProvider(id, 'Verified by admin'),
+    mutationFn: (id: number) =>
+      adminApi.verifyProvider(id, 'Verified by admin'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingProviders'] });
       queryClient.invalidateQueries({ queryKey: ['adminStats'] });
       toast.success('Parts provider verified successfully! ✅');
     },
-    onError: () => {
-      toast.error('Failed to verify provider');
-    },
+    onError: () => toast.error('Failed to verify provider'),
   });
 
-  // Reject provider mutation
+  // Reject provider
   const rejectProviderMutation = useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) =>
       adminApi.rejectProvider(id, reason),
@@ -81,182 +95,157 @@ export function VerificationTab() {
       setRejectingId(null);
       setRejectReason('');
     },
-    onError: () => {
-      toast.error('Failed to reject verification');
-    },
+    onError: () => toast.error('Failed to reject verification'),
   });
 
+  /* ----------------------- HELPERS ----------------------- */
+
+  /**
+   * Handles rejection for both mechanics and providers
+   */
   const handleReject = (id: number, type: 'mechanic' | 'provider') => {
     if (!rejectReason.trim()) {
       toast.error('Please provide a reason for rejection');
       return;
     }
 
-    if (type === 'mechanic') {
-      rejectMechanicMutation.mutate({ id, reason: rejectReason });
-    } else {
-      rejectProviderMutation.mutate({ id, reason: rejectReason });
-    }
+    type === 'mechanic'
+      ? rejectMechanicMutation.mutate({ id, reason: rejectReason })
+      : rejectProviderMutation.mutate({ id, reason: rejectReason });
   };
 
-  const isLoading = activeType === 'mechanics' ? isLoadingMechanics : isLoadingProviders;
-  const data = activeType === 'mechanics' ? pendingMechanics : pendingProviders;
+  const isLoading =
+    activeType === 'mechanics'
+      ? isLoadingMechanics
+      : isLoadingProviders;
+
+  const data =
+    activeType === 'mechanics'
+      ? pendingMechanics
+      : pendingProviders;
+
+  /* ----------------------- UI ----------------------- */
 
   return (
     <div className="space-y-6">
-      {/* Type Toggle */}
-      <div className="flex space-x-4 border-b border-gray-200">
+      {/* TAB SWITCHER */}
+      <div className="flex gap-6 border-b border-gray-200">
         <button
           onClick={() => setActiveType('mechanics')}
-          className={`pb-4 px-2 font-medium text-sm flex items-center ${
+          className={`pb-4 text-sm font-medium flex items-center gap-2 ${
             activeType === 'mechanics'
               ? 'border-b-2 border-blue-500 text-blue-600'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          <Wrench className="h-4 w-4 mr-2" />
+          <Wrench className="h-4 w-4" />
           Mechanics
-          {pendingMechanics && pendingMechanics.length > 0 && (
-            <Badge variant="warning" className="ml-2">
-              {pendingMechanics.length}
-            </Badge>
+          {pendingMechanics?.length > 0 && (
+            <Badge variant="warning">{pendingMechanics.length}</Badge>
           )}
         </button>
+
         <button
           onClick={() => setActiveType('providers')}
-          className={`pb-4 px-2 font-medium text-sm flex items-center ${
+          className={`pb-4 text-sm font-medium flex items-center gap-2 ${
             activeType === 'providers'
               ? 'border-b-2 border-blue-500 text-blue-600'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          <Package className="h-4 w-4 mr-2" />
+          <Package className="h-4 w-4" />
           Parts Providers
-          {pendingProviders && pendingProviders.length > 0 && (
-            <Badge variant="warning" className="ml-2">
-              {pendingProviders.length}
-            </Badge>
+          {pendingProviders?.length > 0 && (
+            <Badge variant="warning">{pendingProviders.length}</Badge>
           )}
         </button>
       </div>
 
-      {/* Content */}
+      {/* LOADING STATE */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="flex justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
         </div>
-      ) : data && data.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6">
+      ) : data?.length ? (
+        <div className="grid gap-5">
           {data.map((item: any) => (
             <Card key={item.id}>
-              <CardContent className="py-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
+                  {/* LEFT INFO */}
+                  <div className="flex gap-4 flex-1">
+                    <div className="h-12 w-12 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
                       {activeType === 'mechanics' ? (
-                        <Wrench className="h-6 w-6 text-blue-600" />
+                        <Wrench className="text-blue-600" />
                       ) : (
-                        <Package className="h-6 w-6 text-blue-600" />
+                        <Package className="text-blue-600" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-2">
+
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <h3 className="font-semibold text-gray-900">
                         {item.user?.fullName || item.shopName}
                       </h3>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <Mail className="h-4 w-4 mr-2" />
-                          <span>{item.user?.email}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Phone className="h-4 w-4 mr-2" />
-                          <span>{item.user?.phone || item.phone}</span>
-                        </div>
-                        {activeType === 'mechanics' && item.specializations && (
-                          <div className="flex items-start">
-                            <Wrench className="h-4 w-4 mr-2 mt-0.5" />
-                            <span>
-                              Specializations:{' '}
-                              {item.specializations.map((s: string) => s.replace('_', ' ')).join(', ')}
-                            </span>
-                          </div>
-                        )}
-                        {activeType === 'providers' && (
-                          <>
-                            <div className="flex items-start">
-                              <MapPin className="h-4 w-4 mr-2 mt-0.5" />
-                              <span>{item.address}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Package className="h-4 w-4 mr-2" />
-                              <span>Shop: {item.shopName}</span>
-                            </div>
-                          </>
-                        )}
-                        <div className="text-xs text-gray-500">
-                          Requested: {new Date(item.createdAt).toLocaleDateString()}
-                        </div>
+
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        {item.user?.email || item.email}
                       </div>
 
-                      {/* Rejection Form */}
-                      {rejectingId === item.id && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Reason for Rejection
-                          </label>
-                          <textarea
-                            value={rejectReason}
-                            onChange={(e) => setRejectReason(e.target.value)}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                            rows={3}
-                            placeholder="Explain why this verification is being rejected..."
-                          />
-                          <div className="flex space-x-2 mt-3">
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleReject(item.id, activeType === 'mechanics' ? 'mechanic' : 'provider')}
-                              isLoading={rejectMechanicMutation.isPending || rejectProviderMutation.isPending}
-                            >
-                              Confirm Reject
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setRejectingId(null);
-                                setRejectReason('');
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {item.user?.phone || item.phone}
+                      </div>
+
+                      {activeType === 'mechanics' && item.specializations && (
+                        <div className="flex gap-2">
+                          <Wrench className="h-4 w-4 mt-0.5" />
+                          Specializations:{' '}
+                          {item.specializations.join(', ')}
                         </div>
                       )}
+
+                      {activeType === 'providers' && (
+                        <>
+                          <div className="flex gap-2">
+                            <MapPin className="h-4 w-4 mt-0.5" />
+                            {item.address}
+                          </div>
+                          <div className="flex gap-2">
+                            <Package className="h-4 w-4" />
+                            Shop: {item.shopName}
+                          </div>
+                        </>
+                      )}
+
+                      <p className="text-xs text-gray-500">
+                        Requested:{' '}
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* ACTION BUTTONS */}
                   {rejectingId !== item.id && (
-                    <div className="flex space-x-2 flex-shrink-0">
+                    <div className="flex sm:flex-col gap-2">
                       <Button
                         size="sm"
+                        className="bg-green-600 hover:bg-green-700"
                         onClick={() =>
                           activeType === 'mechanics'
                             ? verifyMechanicMutation.mutate(item.id)
                             : verifyProviderMutation.mutate(item.id)
                         }
-                        isLoading={verifyMechanicMutation.isPending || verifyProviderMutation.isPending}
-                        className="bg-green-600 hover:bg-green-700"
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Approve
                       </Button>
+
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setRejectingId(item.id)}
                         className="text-red-600 hover:bg-red-50"
+                        onClick={() => setRejectingId(item.id)}
                       >
                         <XCircle className="h-4 w-4 mr-1" />
                         Reject
@@ -270,15 +259,8 @@ export function VerificationTab() {
         </div>
       ) : (
         <Card>
-          <CardContent className="py-12 text-center">
-            {activeType === 'mechanics' ? (
-              <Wrench className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            ) : (
-              <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            )}
-            <p className="text-gray-500">
-              No pending {activeType === 'mechanics' ? 'mechanic' : 'parts provider'} verifications
-            </p>
+          <CardContent className="py-12 text-center text-gray-500">
+            No pending verifications
           </CardContent>
         </Card>
       )}
