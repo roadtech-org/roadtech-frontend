@@ -176,7 +176,7 @@ export function VerificationTab() {
 
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
-                        {item.user?.email}
+                        {item.user?.email || item.email}
                       </div>
 
                       <div className="flex items-center gap-2">
