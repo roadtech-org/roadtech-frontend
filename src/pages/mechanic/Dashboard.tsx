@@ -14,13 +14,11 @@ import {
 import { RequestCard } from '../../components/mechanic/RequestCard';
 import {
   Power,
-  MapPin,
   Clock,
   CheckCircle,
   AlertCircle,
   Briefcase,
   Navigation,
-  Loader2,
   Package,
 } from 'lucide-react';
 import type { ServiceRequest } from '../../types';
