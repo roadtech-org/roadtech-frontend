@@ -13,22 +13,18 @@ import {
   MapPin,
 } from 'lucide-react';
 
-/**
- * Type to control which verification list is active
- */
 type VerificationType = 'mechanics' | 'providers';
 
 export function VerificationTab() {
   const queryClient = useQueryClient();
 
-  /** Active tab */
-  const [activeType, setActiveType] = useState<VerificationType>('mechanics');
+  const [activeType, setActiveType] =
+    useState<VerificationType>('mechanics');
 
-  /** Rejection state */
   const [rejectingId, setRejectingId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  /* ----------------------- DATA FETCHING ----------------------- */
+  /* ---------------- DATA ---------------- */
 
   const { data: pendingMechanics, isLoading: isLoadingMechanics } = useQuery({
     queryKey: ['pendingMechanics'],
@@ -42,7 +38,7 @@ export function VerificationTab() {
     enabled: activeType === 'providers',
   });
 
-  /* ----------------------- MUTATIONS ----------------------- */
+  /* ---------------- MUTATIONS ---------------- */
 
   const verifyMechanicMutation = useMutation({
     mutationFn: (id: number) =>
@@ -92,7 +88,7 @@ export function VerificationTab() {
     onError: () => toast.error('Failed to reject verification'),
   });
 
-  /* ----------------------- HELPERS ----------------------- */
+  /* ---------------- HELPERS ---------------- */
 
   const handleReject = (id: number, type: 'mechanic' | 'provider') => {
     if (!rejectReason.trim()) {
@@ -115,11 +111,11 @@ export function VerificationTab() {
       ? pendingMechanics
       : pendingProviders;
 
-  /* ----------------------- UI ----------------------- */
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="space-y-6">
-      {/* TAB SWITCHER */}
+      {/* TABS */}
       <div className="flex gap-6 border-b border-gray-200">
         <button
           onClick={() => setActiveType('mechanics')}
@@ -152,7 +148,7 @@ export function VerificationTab() {
         </button>
       </div>
 
-      {/* LOADING */}
+      {/* CONTENT */}
       {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
@@ -188,17 +184,10 @@ export function VerificationTab() {
                         {item.user?.phone || item.phone}
                       </div>
 
-                      {activeType === 'mechanics' && item.specializations && (
-                        <div className="flex gap-2">
-                          <Wrench className="h-4 w-4 mt-0.5" />
-                          Specializations: {item.specializations.join(', ')}
-                        </div>
-                      )}
-
                       {activeType === 'providers' && (
                         <>
                           <div className="flex gap-2">
-                            <MapPin className="h-4 w-4 mt-0.5" />
+                            <MapPin className="h-4 w-4" />
                             {item.address}
                           </div>
                           <div className="flex gap-2">
@@ -215,12 +204,12 @@ export function VerificationTab() {
                     </div>
                   </div>
 
-                  {/* ACTION BUTTONS */}
+                  {/* ACTION BUTTONS – FIXED */}
                   {rejectingId !== item.id && (
-                    <div className="flex sm:flex-col gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700"
+                        className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
                         onClick={() =>
                           activeType === 'mechanics'
                             ? verifyMechanicMutation.mutate(item.id)
@@ -234,7 +223,7 @@ export function VerificationTab() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-red-600 hover:bg-red-50"
+                        className="w-full sm:w-auto text-red-600 hover:bg-red-50"
                         onClick={() => {
                           setRejectingId(item.id);
                           setRejectReason('');
@@ -247,7 +236,7 @@ export function VerificationTab() {
                   )}
                 </div>
 
-                {/* REJECT REASON */}
+                {/* REJECT BOX */}
                 {rejectingId === item.id && (
                   <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
                     <label className="block text-sm font-medium text-red-700 mb-2">
@@ -259,8 +248,7 @@ export function VerificationTab() {
                       value={rejectReason}
                       onChange={(e) => setRejectReason(e.target.value)}
                       placeholder="Enter rejection reason..."
-                      className="w-full rounded-md border border-red-300 p-2 text-sm
-                                 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      className="w-full rounded-md border border-red-300 p-2 text-sm focus:ring-2 focus:ring-red-400"
                     />
 
                     <div className="flex justify-end gap-2 mt-3">
