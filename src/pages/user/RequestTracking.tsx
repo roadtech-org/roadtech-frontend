@@ -141,11 +141,11 @@ export function RequestTracking() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{request.mechanic.fullName}</p>
-                    {request.mechanic.rating && (
+                    {/* {request.mechanic.rating && (
                       <p className="text-sm text-gray-600">
                         Rating: {request.mechanic.rating}/5 ({request.mechanic.totalJobs} jobs)
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
 

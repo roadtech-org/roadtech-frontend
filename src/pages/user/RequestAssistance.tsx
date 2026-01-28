@@ -89,7 +89,7 @@ export function RequestAssistance() {
           <CardContent className="space-y-6">
             {error && (
               <div className="flex items-center space-x-2 p-3 bg-red-50 text-red-700 rounded-md">
-                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                <AlertCircle className="h-5 w-5 shrink-0" />
                 <span className="text-sm">{error}</span>
               </div>
             )}
