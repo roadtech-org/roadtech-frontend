@@ -257,7 +257,7 @@ export function MechanicDashboard() {
               onClick={isLiveTracking ? stopLiveTracking : startLiveTracking}
               className={
                 isLiveTracking
-                  ? 'border-red-300 text-red-600'
+                  ? 'border-red-300 text-white'
                   : 'bg-green-600 hover:bg-green-700'
               }
             >
